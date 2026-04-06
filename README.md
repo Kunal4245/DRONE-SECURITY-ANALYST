@@ -109,6 +109,22 @@ flowchart LR
 
 The detailed design artifacts live in [docs/architecture.md](docs/architecture.md). The validation plan is in [docs/testing.md](docs/testing.md).
 
+## Artifacts and Demo Links
+
+For workflow and architecture references, see the artifacts folder:
+
+- [docs/artifacts](docs/artifacts)
+
+This folder contains the design artifacts for:
+
+- Workflow explanation and flowcharts
+- System architecture diagrams
+- Testing and validation artifact documentation
+
+Video demo and PDF report link:
+
+- [Google Drive: Video Demo + PDF Report](https://drive.google.com/drive/folders/1CmXLpb5oajYntBu4j0fKm_WOgxUoShUM?usp=sharing)
+
 ## Repository Layout
 
 ```text
