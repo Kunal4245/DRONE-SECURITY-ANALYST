@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+websockets
+langchain
+langchain-groq
+langchain-community
+langchain-core
+openai
+python-dotenv
+pydantic
+python-multipart
+opencv-python
+groq
+pytest
+pytest-asyncio

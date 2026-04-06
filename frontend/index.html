@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered drone surveillance video analysis system with VLM for real-time property security monitoring">
+    <title>🛸 Drone Security Analyst — Real-Time Video Analysis Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- ═══ HEADER ═══ -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">🛸</span>
+                    <span class="logo-text">DRONE <span>SECURITY</span> ANALYST</span>
+                </div>
+                <div class="live-badge" id="live-badge">
+                    <div class="live-dot"></div>
+                    <span>LIVE</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="model-badge" title="Vision Language Model">
+                    <span>👁️</span>
+                    <span>VLM: Llama 4 Scout</span>
+                </div>
+                <div class="model-badge" title="Text Reasoning Model">
+                    <span>🤖</span>
+                    <span>LLM: LLaMA 3.3 70B</span>
+                </div>
+                <div class="status-indicator" id="status-indicator">
+                    <span>● STANDBY</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══ MAIN CONTENT GRID ═══ -->
+        <main class="main-content">
+
+            <!-- ═══ LEFT PANEL — Controls & Alerts ═══ -->
+            <section class="panel left-panel" id="left-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-title-icon">🎮</span>
+                        Command Center
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <!-- Video Selection -->
+                    <div class="controls">
+                        <label class="control-label">📹 Select Drone Video</label>
+                        <select class="video-select" id="video-select">
+                            <option value="">Loading videos...</option>
+                        </select>
+                        <div class="video-info" id="video-info"></div>
+
+                        <button class="btn btn-primary" id="btn-process-video" onclick="processVideo()">
+                            ▶ Analyze Video
+                        </button>
+
+                        <div class="divider"></div>
+
+                        <button class="btn btn-secondary" id="btn-summary" onclick="generateSummary()">
+                            📊 Generate Summary
+                        </button>
+                        <button class="btn btn-ghost" id="btn-demo" onclick="startDemoSimulation()">
+                            🎬 Demo Mode
+                        </button>
+                        <button class="btn btn-ghost" id="btn-clear" onclick="clearLog()">
+                            🗑 Clear Log
+                        </button>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="progress-container hidden" id="progress-container">
+                        <div class="progress-text">
+                            <span id="progress-label">Processing...</span>
+                            <span id="progress-count">0/15</span>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time Alerts -->
+                    <div class="alert-section-title">
+                        <span>🚨</span> Real-Time Alerts
+                    </div>
+                    <div class="alerts-container" id="alerts-container">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ CENTER PANEL — Current Frame ═══ -->
+            <section class="panel center-panel" id="center-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-title-icon">📹</span>
+                        Video Frame Analysis
+                    </div>
+                    <span class="frame-id-badge" id="frame-counter">NO FRAME</span>
+                </div>
+                <div class="panel-body">
+                    <div class="frame-display" id="frame-display">
+                        <!-- Empty state -->
+                        <div class="frame-empty" id="frame-empty">
+                            <div class="frame-empty-icon">🛸</div>
+                            <div class="frame-empty-text">
+                                Select a drone video and click <strong>"Analyze Video"</strong> to begin 
+                                real-time frame-by-frame analysis using VLM + AI.
+                            </div>
+                        </div>
+
+                        <!-- Active frame (hidden initially) -->
+                        <div class="current-frame hidden" id="current-frame">
+                            <!-- Drone Camera Image -->
+                            <div class="drone-image-container">
+                                <div class="drone-image-label">
+                                    <span>📷 DRONE CAMERA FEED</span>
+                                    <span class="risk-badge" id="risk-badge">—</span>
+                                </div>
+                                <img class="drone-image" id="drone-image" src="" alt="Drone camera frame"
+                                     onerror="this.style.display='none'">
+                                <div class="drone-image-placeholder hidden" id="drone-image-placeholder">
+                                    No image available (Demo Mode)
+                                </div>
+                            </div>
+
+                            <!-- VLM Description -->
+                            <div class="vlm-description" id="vlm-description-box">
+                                <div class="label">👁️ VLM Vision Analysis (What the AI sees)</div>
+                                <div id="vlm-description-text" class="vlm-text">—</div>
+                            </div>
+
+                            <!-- Telemetry grid -->
+                            <div class="telemetry-grid">
+                                <div class="telemetry-item">
+                                    <div class="label">📍 Location</div>
+                                    <div class="value" id="telem-location">—</div>
+                                </div>
+                                <div class="telemetry-item">
+                                    <div class="label">⬆ Altitude</div>
+                                    <div class="value" id="telem-altitude">—</div>
+                                </div>
+                                <div class="telemetry-item">
+                                    <div class="label">🕐 Timestamp</div>
+                                    <div class="value" id="telem-timestamp">—</div>
+                                </div>
+                                <div class="telemetry-item">
+                                    <div class="label">🌐 GPS</div>
+                                    <div class="value" id="telem-gps">—</div>
+                                </div>
+                            </div>
+
+                            <!-- AI Analysis Result -->
+                            <div class="analysis-result" id="analysis-result">
+                                <h4>🤖 Security Analysis (LLaMA 3.3)</h4>
+                                <div class="analysis-row">
+                                    <span class="label">Event Summary:</span>
+                                    <span class="value" id="analysis-summary">—</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="label">Alert:</span>
+                                    <span class="value" id="analysis-alert">—</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="label">Reasoning:</span>
+                                    <span class="value" id="analysis-reasoning">—</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="label">Objects:</span>
+                                    <div class="detected-objects" id="analysis-objects"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ RIGHT PANEL — Chat ═══ -->
+            <section class="panel right-panel" id="right-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-title-icon">💬</span>
+                        AI Chat
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="chat-message system">
+                                Welcome! I analyze drone surveillance videos using VLM + AI. 
+                                Ask me about detected events, objects, or request a video summary.
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" id="chat-input" 
+                                   placeholder="Ask about security events..." 
+                                   onkeydown="if(event.key==='Enter') sendChat()">
+                            <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ BOTTOM PANEL — Event Log ═══ -->
+            <section class="panel bottom-panel" id="bottom-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-title-icon">📋</span>
+                        Event Log
+                    </div>
+                    <span class="event-count" id="event-count">0 events</span>
+                </div>
+                <div class="panel-body">
+                    <div class="table-controls">
+                        <input type="text" class="filter-input" id="filter-input" 
+                               placeholder="Filter by object, location, or risk..." 
+                               oninput="filterTable()">
+                    </div>
+                    <div class="event-table-wrapper">
+                        <table class="event-table" id="event-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Time</th>
+                                    <th>Location</th>
+                                    <th>Risk</th>
+                                    <th>VLM Description</th>
+                                    <th>Objects</th>
+                                </tr>
+                            </thead>
+                            <tbody id="event-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Summary Modal -->
+    <div class="summary-overlay hidden" id="summary-overlay" onclick="closeSummary(event)">
+        <div class="summary-modal">
+            <h3>📊 Video Security Summary</h3>
+            <div class="summary-content" id="summary-content">Loading...</div>
+            <button class="btn btn-ghost summary-close-btn" onclick="closeSummary()">Close</button>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
